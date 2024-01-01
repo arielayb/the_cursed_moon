@@ -19,3 +19,8 @@ opt-level = 3
 # Otherwise you will need to include libbevy_dylib alongside your game if you want it to run. 
 # If you remove the "dynamic" feature, your game executable can run standalone.
 bevy = { version = "0.12.1", features = ["dynamic_linking"] }
+bevy_ascii_terminal = "0.14.0"
+rand = "0.8.4"
+ron = "0.8.1"
+bracket-random = "0.8.7"
+interpolation = "0.3.0"

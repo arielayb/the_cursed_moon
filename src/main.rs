@@ -1,39 +1,33 @@
 use bevy::prelude::*;
-
-
-pub struct HelloPlugin;
-impl Plugin for HelloPlugin {
-    fn build(&self, app: &mut App) {
-        // add things to your app here
-        app.insert_resource(GreetTimer(Timer::from_seconds(2.0, TimerMode::Repeating)))
-           .add_systems(Startup, add_people)
-           .add_systems(Update, greet_people);
-    }
-}
+use bevy_ascii_terminal::{prelude::*, TiledCameraBundle};
 
 #[derive(Component)]
-struct Person;
+pub struct GameTerminal;
 
-#[derive(Component)]
-struct Name(String);
+pub const VIEWPORT_SIZE: [u32;2] = [80,40];
+pub const UI_SIZE: [u32;2] = [VIEWPORT_SIZE[0],8];
+pub const GAME_SIZE: [u32;2] = [VIEWPORT_SIZE[0], VIEWPORT_SIZE[1] - UI_SIZE[1]];
 
-#[derive(Resource)]
-struct GreetTimer(Timer);
+fn setup(mut commands: Commands) {
+    // Create the terminal
+    let term_y = VIEWPORT_SIZE[1] as u32 / 2 - GAME_SIZE[1] as u32 / 2; 
+    let term = Terminal::new([20, term_y]).with_border(Border::single_line());
+ 
+    let term_bundle = TerminalBundle::from(term).with_size([GAME_SIZE[0], GAME_SIZE[1] + 2]);
 
-fn add_people(mut commands: Commands) {
-    commands.spawn((Person, Name("Elaina Proctor".to_string())));
-    commands.spawn((Person, Name("Renzo Hume".to_string())));
-    commands.spawn((Person, Name("Zayna Nieves".to_string())));
+    commands.spawn(term_bundle).insert(GameTerminal);
+
+    let totalx = GAME_SIZE[0];
+    let totaly = GAME_SIZE[1] + UI_SIZE[1];
+
+    commands.spawn(TiledCameraBundle::new().with_tile_count([totalx, totaly]));
+
 }
 
-fn greet_people(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Name, With<Person>>) {
-    if timer.0.tick(time.delta()).just_finished() {
-        for name in &query {
-            println!("hello {}!", name.0);
-        }
-    }
-}
-
-fn main() {
-    App::new().add_plugins((DefaultPlugins, HelloPlugin)).run();
+fn main () {
+    App::new()
+    .add_plugins((DefaultPlugins, TerminalPlugin))
+    .add_systems(Startup, setup)
+    .insert_resource(ClearColor(Color::BLACK))
+    .run();
 }
