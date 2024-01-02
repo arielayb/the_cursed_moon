@@ -22,6 +22,7 @@ fn setup(mut commands: Commands) {
 
     commands.spawn(TiledCameraBundle::new().with_tile_count([totalx, totaly]));
 
+    // TODO: another terminal window
 }
 
 fn main () {
